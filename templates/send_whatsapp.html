@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="mb-4">إرسال رسالة واتساب إلى: {{ customer.full_name }}</h1>
+
+    <form method="POST">
+        <div class="mb-3">
+            <label for="message_template" class="form-label">قالب الرسالة:</label>
+            <textarea class="form-control" id="message_template" name="message_template" rows="5">{{ default_message_template }}</textarea>
+            <small class="form-text text-muted">
+                يمكنك استخدام المتغيرات التالية: <code>{customer_name}</code> و <code>{current_balance}</code>
+            </small>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">معاينة الرسالة:</label>
+            <div class="alert alert-light border" role="alert" style="white-space: pre-wrap;">
+                {{ message_preview }}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success">إرسال عبر WhatsApp Web</button>
+        <a href="{{ url_for('customer_detail', customer_id=customer.id) }}" class="btn btn-secondary">إلغاء</a>
+    </form>
+{% endblock %}

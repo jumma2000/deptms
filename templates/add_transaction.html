@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="mb-4">
+        {% if request.args.get('type') == 'debt' %}
+            إضافة دين جديد للعميل: {{ customer.full_name }}
+        {% else %}
+            تسجيل سداد للعميل: {{ customer.full_name }}
+        {% endif %}
+    </h1>
+
+    <form method="POST">
+        <input type="hidden" name="type" value="{{ request.args.get('type') }}">
+        <div class="mb-3">
+            <label for="date" class="form-label">تاريخ المعاملة:</label>
+            <input type="date" class="form-control" id="date" name="date" value="{{ today_date }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="amount" class="form-label">المبلغ (د.ل):</label>
+            <input type="number" step="0.01" class="form-control" id="amount" name="amount" required min="0.01">
+        </div>
+
+        {% if request.args.get('type') == 'debt' %}
+            <div class="mb-3">
+                <label for="due_date" class="form-label">تاريخ الاستحقاق (اختياري):</label>
+                <input type="date" class="form-control" id="due_date" name="due_date">
+            </div>
+        {% endif %}
+
+        {% if request.args.get('type') == 'payment' %}
+            <div class="mb-3">
+                <label for="payment_method" class="form-label">طريقة الدفع:</label>
+                <select class="form-select" id="payment_method" name="payment_method">
+                    <option value="نقداً">نقداً</option>
+                    <option value="بطاقة الصديق">بطاقة الصديق</option>
+                    <option value="أخرى">أخرى</option>
+                </select>
+            </div>
+        {% endif %}
+
+        <div class="mb-3">
+            <label for="notes" class="form-label">ملاحظات (اختياري):</label>
+            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">
+            {% if request.args.get('type') == 'debt' %}
+                إضافة الدين
+            {% else %}
+                تسجيل السداد
+            {% endif %}
+        </button>
+        <a href="{{ url_for('customer_detail', customer_id=customer.id) }}" class="btn btn-secondary">إلغاء</a>
+    </form>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="mb-4">تعديل بيانات العميل</h1>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="full_name" class="form-label">الاسم الكامل:</label>
+            <input type="text" class="form-control" id="full_name" name="full_name" value="{{ customer.full_name }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="phone_number" class="form-label">رقم الهاتف:</label>
+            <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ customer.phone_number }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">البريد الإلكتروني (اختياري):</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ customer.email or '' }}">
+        </div>
+        <button type="submit" class="btn btn-primary">حفظ التعديلات</button>
+        <a href="{{ url_for('customer_detail', customer_id=customer.id) }}" class="btn btn-secondary">إلغاء</a>
+    </form>
+{% endblock %}

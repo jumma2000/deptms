@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="mb-4">تقرير تحليل الديون</h1>
+
+    <form method="GET" class="mb-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label for="customer_id" class="form-label">العميل:</label>
+                <select class="form-select" id="customer_id" name="customer_id">
+                    <option value="">جميع العملاء</option>
+                    {% for customer in customers %}
+                        <option value="{{ customer.id }}" {% if selected_customer_id == customer.id %}selected{% endif %}>{{ customer.full_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="start_date" class="form-label">من تاريخ:</label>
+                <input type="date" class="form-control" id="start_date" name="start_date" value="{{ start_date or '' }}">
+            </div>
+            <div class="col-md-3">
+                <label for="end_date" class="form-label">إلى تاريخ:</label>
+                <input type="date" class="form-control" id="end_date" name="end_date" value="{{ end_date or '' }}">
+            </div>
+            <div class="col-md-3">
+                <label for="status_filter" class="form-label">الحالة:</label>
+                <select class="form-select" id="status_filter" name="status_filter">
+                    <option value="">جميع الحالات</option>
+                    <option value="مستحق" {% if status_filter == 'مستحق' %}selected{% endif %}>مستحق</option>
+                    <option value="مدفوع" {% if status_filter == 'مدفوع' %}selected{% endif %}>مدفوع</option>
+                    <option value="متأخر" {% if status_filter == 'متأخر' %}selected{% endif %}>متأخر</option>
+                </select>
+            </div>
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary w-100">تصفية</button>
+            </div>
+        </div>
+    </form>
+
+    {% if report_data %}
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-white bg-info mb-3">
+                    <div class="card-header">إجمالي الديون</div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ "%.2f"|format(total_debt) }} د.ل</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-success mb-3">
+                    <div class="card-header">إجمالي المدفوعات</div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ "%.2f"|format(total_payments) }} د.ل</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-{% if current_balance > 0 %}danger{% else %}success{% endif %} mb-3">
+                    <div class="card-header">الرصيد الحالي (صافي الدين)</div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ "%.2f"|format(current_balance) }} د.ل</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>العميل</th>
+                        <th>تاريخ المعاملة</th>
+                        <th>النوع</th>
+                        <th>المبلغ (د.ل)</th>
+                        <th>تاريخ الاستحقاق</th>
+                        <th>الحالة</th>
+                        <th>طريقة الدفع</th>
+                        <th>ملاحظات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in report_data %}
+                        <tr class="table-{% if item.status == 'متأخر' %}danger{% elif item.status == 'مستحق' %}warning{% else %}success{% endif %}">
+                            <td>{{ item.customer_name }}</td>
+                            <td>{{ item.transaction_date }}</td>
+                            <td>{{ item.type }}</td>
+                            <td>{{ "%.2f"|format(item.amount) }}</td>
+                          <td>{{ item.transaction_date }}</td>
+                            <td>{{ item.status }}</td>
+                            <td>{{ item.payment_method or 'N/A' }}</td>
+                            <td>{{ item.notes or 'لا يوجد' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-4">
+            <button class="btn btn-secondary" onclick="window.print()">طباعة التقرير</button>
+            <a href="{{ url_for('generate_debt_report_excel', customer_id=selected_customer_id, start_date=start_date, end_date=end_date, status_filter=status_filter) }}" class="btn btn-success">تصدير إلى Excel</a>
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            لا توجد بيانات لعرضها بناءً على معايير التصفية المحددة.
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="mb-4">تفاصيل العميل: {{ customer.full_name }}</h1>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            معلومات العميل
+        </div>
+        <div class="card-body">
+            <p><strong>الاسم الكامل:</strong> {{ customer.full_name }}</p>
+            <p><strong>رقم الهاتف:</strong> {{ customer.phone_number }}</p>
+            <p><strong>البريد الإلكتروني:</strong> {{ customer.email or 'لا يوجد' }}</p>
+            <h3 class="mt-4">الديون : <span class="text-{% if customer.balance > 0 %}danger{% elif customer.balance < 0 %}success{% else %}secondary{% endif %}">{{ "%.2f"|format(customer.balance) }} د.ل</span></h3>
+            <p>إجمالي الديون: {{ "%.2f"|format(total_debt) }} د.ل</p>
+            <p>إجمالي المدفوعات: {{ "%.2f"|format(total_payments) }} د.ل</p>
+            <div class="mt-3">
+                <a href="{{ url_for('add_transaction', customer_id=customer.id, type='debt') }}" class="btn btn-success">إضافة دين جديد</a>
+                <a href="{{ url_for('add_transaction', customer_id=customer.id, type='payment') }}" class="btn btn-info">تسجيل سداد</a>
+                <a href="{{ url_for('send_whatsapp', customer_id=customer.id) }}" class="btn btn-warning">إرسال رسالة واتساب</a>
+                <a href="{{ url_for('edit_customer', customer_id=customer.id) }}" class="btn btn-secondary">تعديل بيانات العميل</a>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteCustomerModal">حذف العميل</button>
+            </div>
+
+            <!-- Delete Confirmation Modal -->
+            <div class="modal fade" id="deleteCustomerModal" tabindex="-1" aria-labelledby="deleteCustomerModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteCustomerModalLabel">تأكيد الحذف</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            هل أنت متأكد أنك تريد حذف العميل {{ customer.full_name }} وجميع معاملاته؟ هذا الإجراء لا يمكن التراجع عنه.
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                            <form action="{{ url_for('delete_customer', customer_id=customer.id) }}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-danger">حذف</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="mb-3">سجل المعاملات</h2>
+    {% if transactions %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>النوع</th>
+                        <th>المبلغ (د.ل)</th>
+                        <th>تاريخ الاستحقاق</th>
+                        <th>الحالة</th>
+                        <th>الملاحظات</th>
+                        <th>طريقة الدفع</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                        <tr class="table-{% if transaction.is_overdue %}danger{% elif transaction.is_due_soon %}warning{% elif transaction.type == 'debt' %}info{% else %}success{% endif %}">
+                            <td>{{ transaction.date }}</td>
+                            <td>{{ 'دين' if transaction.type == 'debt' else 'سداد' }}</td>
+                            <td>{{ "%.2f"|format(transaction.amount) }}</td>
+                            <td>
+                                {% if transaction.type == 'debt' %}
+                                    {{ transaction.date }}
+                                {% else %}
+                                    {{ transaction.date }}
+                                {% endif %}
+                            </td>
+                            <td>{{ transaction.status }}</td>
+                            <td>{{ transaction.notes or 'لا يوجد' }}</td>
+                            <td>{{ transaction.payment_method or 'غير محدد' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            لا توجد معاملات مسجلة لهذا العميل.
+        </div>
+    {% endif %}
+{% endblock %}
