@@ -25,6 +25,13 @@
             border-radius: 8px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
         }
+        @media (max-width: 768px) {
+            .container {
+                margin-top: 15px;
+                margin-bottom: 15px;
+                padding: 15px;
+            }
+        }
         .navbar {
             margin-bottom: 20px;
         }
@@ -51,6 +58,38 @@
         }
         .custom-nav-link:hover {
             color: #ccc !important; /* Slightly lighter on hover */
+        }
+        /* Responsive table for smaller screens */
+        .table-responsive {
+            overflow-x: auto;
+        }
+        @media (max-width: 768px) {
+            .table thead {
+                display: none; /* Hide table headers on small screens */
+            }
+            .table, .table tbody, .table tr, .table td {
+                display: block; /* Make table elements behave like block elements */
+                width: 100%;
+            }
+            .table tr {
+                margin-bottom: 15px;
+                border: 1px solid #dee2e6;
+                border-radius: 5px;
+            }
+            .table td {
+                text-align: right;
+                padding-left: 50%; /* Space for pseudo-element label */
+                position: relative;
+            }
+            .table td::before {
+                content: attr(data-label); /* Use data-label for content */
+                position: absolute;
+                left: 10px;
+                width: calc(50% - 20px);
+                padding-right: 10px;
+                font-weight: bold;
+                text-align: left;
+            }
         }
     </style>
 </head>

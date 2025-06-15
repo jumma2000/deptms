@@ -14,12 +14,12 @@
             <h3 class="mt-4">الديون : <span class="text-{% if customer.balance > 0 %}danger{% elif customer.balance < 0 %}success{% else %}secondary{% endif %}">{{ "%.2f"|format(customer.balance) }} د.ل</span></h3>
             <p>إجمالي الديون: {{ "%.2f"|format(total_debt) }} د.ل</p>
             <p>إجمالي المدفوعات: {{ "%.2f"|format(total_payments) }} د.ل</p>
-            <div class="mt-3">
-                <a href="{{ url_for('add_transaction', customer_id=customer.id, type='debt') }}" class="btn btn-success">إضافة دين جديد</a>
-                <a href="{{ url_for('add_transaction', customer_id=customer.id, type='payment') }}" class="btn btn-info">تسجيل سداد</a>
-                <a href="{{ url_for('send_whatsapp', customer_id=customer.id) }}" class="btn btn-warning">إرسال رسالة واتساب</a>
-                <a href="{{ url_for('edit_customer', customer_id=customer.id) }}" class="btn btn-secondary">تعديل بيانات العميل</a>
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteCustomerModal">حذف العميل</button>
+            <div class="mt-3 mb-3 d-grid gap-2 d-md-block">
+                <a href="{{ url_for('add_transaction', customer_id=customer.id, type='debt') }}" class="btn btn-success mb-2 mb-md-0">إضافة دين جديد</a>
+                <a href="{{ url_for('add_transaction', customer_id=customer.id, type='payment') }}" class="btn btn-info mb-2 mb-md-0">تسجيل سداد</a>
+                <a href="{{ url_for('send_whatsapp', customer_id=customer.id) }}" class="btn btn-warning mb-2 mb-md-0">إرسال رسالة واتساب</a>
+                <a href="{{ url_for('edit_customer', customer_id=customer.id) }}" class="btn btn-secondary mb-2 mb-md-0">تعديل بيانات العميل</a>
+                <button type="button" class="btn btn-danger mb-2 mb-md-0" data-bs-toggle="modal" data-bs-target="#deleteCustomerModal">حذف العميل</button>
             </div>
 
             <!-- Delete Confirmation Modal -->
@@ -63,19 +63,19 @@
                 <tbody>
                     {% for transaction in transactions %}
                         <tr class="table-{% if transaction.is_overdue %}danger{% elif transaction.is_due_soon %}warning{% elif transaction.type == 'debt' %}info{% else %}success{% endif %}">
-                            <td>{{ transaction.date }}</td>
-                            <td>{{ 'دين' if transaction.type == 'debt' else 'سداد' }}</td>
-                            <td>{{ "%.2f"|format(transaction.amount) }}</td>
-                            <td>
+                            <td data-label="التاريخ">{{ transaction.date }}</td>
+                            <td data-label="النوع">{{ 'دين' if transaction.type == 'debt' else 'سداد' }}</td>
+                            <td data-label="المبلغ (د.ل)">{{ "%.2f"|format(transaction.amount) }}</td>
+                            <td data-label="تاريخ الاستحقاق">
                                 {% if transaction.type == 'debt' %}
                                     {{ transaction.date }}
                                 {% else %}
                                     {{ transaction.date }}
                                 {% endif %}
                             </td>
-                            <td>{{ transaction.status }}</td>
-                            <td>{{ transaction.notes or 'لا يوجد' }}</td>
-                            <td>{{ transaction.payment_method or 'غير محدد' }}</td>
+                            <td data-label="الحالة">{{ transaction.status }}</td>
+                            <td data-label="الملاحظات">{{ transaction.notes or 'لا يوجد' }}</td>
+                            <td data-label="طريقة الدفع">{{ transaction.payment_method or 'غير محدد' }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
